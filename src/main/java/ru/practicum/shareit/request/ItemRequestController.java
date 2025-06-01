@@ -1,5 +1,6 @@
 package ru.practicum.shareit.request;
 
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -11,18 +12,16 @@ import ru.practicum.shareit.request.dto.ItemRequestDto;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/requests")
 public class ItemRequestController {
     private static final Logger log = LoggerFactory.getLogger(ItemRequestController.class);
     private final ItemRequestService requestService;
 
-    public ItemRequestController(ItemRequestService requestService) {
-        this.requestService = requestService;
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ItemRequestDto createRequest(
+            @Valid
             @RequestBody ItemRequestDto requestDto,
             @RequestHeader("X-Sharer-User-Id") Long userId
     ) {

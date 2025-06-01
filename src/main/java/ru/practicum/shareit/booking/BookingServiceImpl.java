@@ -41,6 +41,11 @@ public class BookingServiceImpl implements BookingService {
         User booker = userService.getUserEntityById(bookerId);
         Item item = itemService.getItemEntityById(bookingDto.getItemId());
 
+        // Проверка end > start
+        if (bookingDto.getEnd().isBefore(bookingDto.getStart())) {
+            throw new ValidationException("End time must be after start time");
+        }
+
         // Проверка доступности вещи
         if (!Boolean.TRUE.equals(item.getAvailable())) {
             log.warn("Item {} is not available for booking", item.getId());
