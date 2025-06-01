@@ -18,14 +18,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final Map<Long, Item> items = new HashMap<>();
-    private final AtomicLong idCounter = new AtomicLong(1);
+    private Long idCounter = 1L;
     private final UserService userService;
     private final ItemRequestService itemRequestService;
 
@@ -44,8 +43,9 @@ public class ItemServiceImpl implements ItemService {
         }
 
         Item item = ItemMapper.toItem(itemDto, owner, request);
-        item.setId(idCounter.getAndIncrement());
+        item.setId(idCounter);
         items.put(item.getId(), item);
+        idCounter++;
 
         log.debug("Added item: ID={}, Name={}, Owner={}, Request={}",
                 item.getId(), item.getName(), ownerId, itemDto.getRequestId());
@@ -114,6 +114,11 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> searchItems(String text) {
         log.debug("Searching items by text: '{}'", text);
+
+        if (text == null || text.isBlank()) {
+            log.debug("Empty search text - returning empty list");
+            return Collections.emptyList();
+        }
 
         String searchText = text.toLowerCase();
         List<ItemDto> result = items.values().stream()

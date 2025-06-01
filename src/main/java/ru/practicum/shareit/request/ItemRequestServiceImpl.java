@@ -2,8 +2,6 @@ package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
@@ -17,14 +15,13 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class ItemRequestServiceImpl implements ItemRequestService {
     private final Map<Long, ItemRequest> requests = new HashMap<>();
-    private final AtomicLong idCounter = new AtomicLong(1);
+    private Long idCounter = 1L;
     private final UserService userService;
 
     @Override
@@ -39,9 +36,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         }
 
         ItemRequest request = ItemRequestMapper.toItemRequest(requestDto, requestor);
-        request.setId(idCounter.getAndIncrement());
+        request.setId(idCounter);
         request.setCreated(LocalDateTime.now());
         requests.put(request.getId(), request);
+        idCounter++;
 
         log.debug("Created request: ID={}, User={}, Description='{}', Created={}",
                 request.getId(), userId,

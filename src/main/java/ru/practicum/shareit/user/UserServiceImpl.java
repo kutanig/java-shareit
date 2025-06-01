@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DuplicateEmailException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
@@ -12,35 +11,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 @Slf4j
 public class UserServiceImpl implements UserService {
     private final Map<Long, User> users = new HashMap<>();
-    private final AtomicLong idCounter = new AtomicLong(1);
+    private Long idCounter = 1L;
 
     @Override
     public UserDto createUser(UserDto userDto) {
         log.info("Creating new user with email: {}", userDto.getEmail());
 
-        if (userDto.getName() == null || userDto.getName().isBlank()) {
-            throw new ValidationException("Name cannot be blank");
-        }
-
-        if (userDto.getEmail() == null || userDto.getEmail().isBlank()) {
-            throw new ValidationException("Email cannot be blank");
-        }
-
-        // Проверка уникальности email
         if (isEmailExists(userDto.getEmail())) {
             log.warn("Duplicate email detected: {}", userDto.getEmail());
             throw new DuplicateEmailException("Email already exists: " + userDto.getEmail());
         }
 
         User user = UserMapper.toUser(userDto);
-        user.setId(idCounter.getAndIncrement());
+        user.setId(idCounter);
         users.put(user.getId(), user);
+        idCounter++;
 
         log.debug("Created user: ID={}, Name={}, Email={}",
                 user.getId(), user.getName(), user.getEmail());
@@ -57,7 +47,6 @@ public class UserServiceImpl implements UserService {
             throw new NotFoundException("User not found with id: " + userId);
         }
 
-        // Проверка уникальности нового email
         if (userDto.getEmail() != null &&
                 !userDto.getEmail().equals(existingUser.getEmail()) &&
                 isEmailExists(userDto.getEmail())) {

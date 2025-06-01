@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
     private final Map<Long, Booking> bookings = new HashMap<>();
-    private final AtomicLong idCounter = new AtomicLong(1);
+    private Long idCounter = 1L;
     private final UserService userService;
     private final ItemService itemService;
 
@@ -63,9 +63,10 @@ public class BookingServiceImpl implements BookingService {
         }
 
         Booking booking = BookingMapper.toBooking(bookingDto, item, booker);
-        booking.setId(idCounter.getAndIncrement());
+        booking.setId(idCounter);
         booking.setStatus(BookingStatus.WAITING);
         bookings.put(booking.getId(), booking);
+        idCounter++;
 
         log.debug("Created booking: ID={}, Item={}, Booker={}, Status={}, Start={}, End={}",
                 booking.getId(), item.getId(), bookerId,
