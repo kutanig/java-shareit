@@ -3,12 +3,8 @@ package ru.practicum.shareit.request;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 
 import java.util.List;
@@ -70,27 +66,7 @@ public class ItemRequestController {
         return request;
     }
 
-    @ExceptionHandler({NotFoundException.class})
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String handleNotFound(Exception ex) {
-        log.warn("Request not found: {}", ex.getMessage());
-        return ex.getMessage();
-    }
-
-    @ExceptionHandler({ValidationException.class})
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String handleBadRequest(Exception ex) {
-        log.warn("Validation error: {}", ex.getMessage());
-        return ex.getMessage();
-    }
-
-    @ExceptionHandler({Exception.class})
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public String handleInternalError(Exception ex) {
-        log.error("Internal server error", ex);
-        return "Internal server error";
-    }
-
+    // Вспомогательный метод для сокращения длинных описаний в логах
     private String truncate(String text, int length) {
         if (text == null) return "null";
         return text.length() <= length ? text : text.substring(0, length) + "...";
