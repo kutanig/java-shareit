@@ -115,7 +115,7 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> searchItems(String text) {
         log.debug("Searching items by text: '{}'", text);
 
-        if (text == null || text.isBlank()) {
+        if (text.isBlank()) {
             log.debug("Empty search text - returning empty list");
             return Collections.emptyList();
         }

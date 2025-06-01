@@ -100,7 +100,8 @@ public class GlobalExceptionHandler {
         return ex.getRequiredType().getSimpleName().toLowerCase();
     }
 
-    public record ErrorResponse(String error, String message) {}
+    public record ErrorResponse(String error, String message) {
+    }
 
     public record ValidationErrorResponse(
             String error,
@@ -112,5 +113,6 @@ public class GlobalExceptionHandler {
         }
     }
 
-    public record FieldError(String field, String message) {}
+    public record FieldError(String field, String message) {
+    }
 }

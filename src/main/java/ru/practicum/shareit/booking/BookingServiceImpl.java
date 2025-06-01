@@ -18,7 +18,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 @Service
@@ -133,7 +132,7 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingDto> getAllBookingsForUser(Long userId, String state) {
         log.debug("Fetching all bookings for user ID: {} with state: {}", userId, state);
 
-        userService.getUserById(userId); // Проверка существования пользователя
+        userService.getUserById(userId);
 
         List<Booking> userBookings = bookings.values().stream()
                 .filter(b -> b.getBooker().getId().equals(userId))
