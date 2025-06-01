@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -13,14 +14,11 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/items")
 public class ItemController {
     private static final Logger log = LoggerFactory.getLogger(ItemController.class);
     private final ItemService itemService;
-
-    public ItemController(ItemService itemService) {
-        this.itemService = itemService;
-    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
