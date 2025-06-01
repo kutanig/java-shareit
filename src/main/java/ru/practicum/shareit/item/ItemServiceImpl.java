@@ -113,25 +113,19 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> searchItems(String text) {
-        log.debug("Searching items by text: '{}'", text);
-
         if (text == null || text.isBlank()) {
             log.debug("Empty search text - returning empty list");
             return Collections.emptyList();
         }
 
         String searchText = text.toLowerCase();
-        List<ItemDto> result = items.values().stream()
+        return items.values().stream()
                 .filter(item -> Boolean.TRUE.equals(item.getAvailable()))
                 .filter(item ->
-                        (item.getName() != null && item.getName().toLowerCase().contains(searchText)) ||
+                        item.getName() != null && item.getName().toLowerCase().contains(searchText) ||
                                 (item.getDescription() != null && item.getDescription().toLowerCase().contains(searchText))
-                )
-                .map(ItemMapper::toItemDto)
-                .toList();
-
-        log.debug("Found {} items for search: '{}'", result.size(), text);
-        return result;
+                                        .map(ItemMapper::toItemDto)
+                                        .toList();
     }
 
     @Override
