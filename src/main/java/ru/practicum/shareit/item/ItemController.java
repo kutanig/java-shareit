@@ -62,12 +62,11 @@ public class ItemController {
 
     @GetMapping("/search")
     public List<ItemDto> searchItems(
-            @RequestParam(required = false) String text
+            @RequestParam String text
     ) {
-        String searchText = text != null ? text : "";
-        log.info("GET /items/search?text={} - Searching items", searchText);
-        List<ItemDto> result = itemService.searchItems(searchText);
-        log.debug("Found {} items for search: '{}'", result.size(), searchText);
+        log.info("GET /items/search?text={} - Searching items", text);
+        List<ItemDto> result = itemService.searchItems(text);
+        log.debug("Found {} items for search: '{}'", result.size(), text);
         return result;
     }
 }
