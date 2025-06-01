@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DuplicateEmailException;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -16,8 +15,8 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
-    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
     private final Map<Long, User> users = new HashMap<>();
     private final AtomicLong idCounter = new AtomicLong(1);
 

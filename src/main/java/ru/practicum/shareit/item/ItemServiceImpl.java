@@ -1,7 +1,7 @@
 package ru.practicum.shareit.item;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -21,17 +21,13 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
-    private static final Logger log = LoggerFactory.getLogger(ItemServiceImpl.class);
     private final Map<Long, Item> items = new HashMap<>();
     private final AtomicLong idCounter = new AtomicLong(1);
     private final UserService userService;
     private final ItemRequestService itemRequestService;
-
-    public ItemServiceImpl(UserService userService, ItemRequestService itemRequestService) {
-        this.userService = userService;
-        this.itemRequestService = itemRequestService;
-    }
 
     @Override
     public ItemDto addItem(ItemDto itemDto, Long ownerId) {

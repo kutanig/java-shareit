@@ -1,5 +1,7 @@
 package ru.practicum.shareit.request;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -18,15 +20,12 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class ItemRequestServiceImpl implements ItemRequestService {
-    private static final Logger log = LoggerFactory.getLogger(ItemRequestServiceImpl.class);
     private final Map<Long, ItemRequest> requests = new HashMap<>();
     private final AtomicLong idCounter = new AtomicLong(1);
     private final UserService userService;
-
-    public ItemRequestServiceImpl(UserService userService) {
-        this.userService = userService;
-    }
 
     @Override
     public ItemRequestDto createRequest(ItemRequestDto requestDto, Long userId) {

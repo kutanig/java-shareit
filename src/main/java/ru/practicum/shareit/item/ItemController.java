@@ -2,8 +2,7 @@ package ru.practicum.shareit.item;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.ForbiddenException;
@@ -15,9 +14,9 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping("/items")
 public class ItemController {
-    private static final Logger log = LoggerFactory.getLogger(ItemController.class);
     private final ItemService itemService;
 
     @PostMapping

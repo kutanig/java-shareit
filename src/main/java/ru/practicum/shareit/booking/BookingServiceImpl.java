@@ -1,7 +1,7 @@
 package ru.practicum.shareit.booking;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -22,17 +22,13 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
-    private static final Logger log = LoggerFactory.getLogger(BookingServiceImpl.class);
     private final Map<Long, Booking> bookings = new HashMap<>();
     private final AtomicLong idCounter = new AtomicLong(1);
     private final UserService userService;
     private final ItemService itemService;
-
-    public BookingServiceImpl(UserService userService, ItemService itemService) {
-        this.userService = userService;
-        this.itemService = itemService;
-    }
 
     @Override
     public BookingDto createBooking(BookingDto bookingDto, Long bookerId) {
