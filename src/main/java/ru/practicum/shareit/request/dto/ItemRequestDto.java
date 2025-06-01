@@ -1,9 +1,10 @@
 package ru.practicum.shareit.request.dto;
 
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -13,7 +14,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ItemRequestDto {
     private Long id;
+
+    @NotBlank(message = "Description cannot be blank")
     private String description;
+
     private Long requestorId;
     private LocalDateTime created;
 }
