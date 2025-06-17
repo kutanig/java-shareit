@@ -4,7 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.BookingStatus;
+import ru.practicum.shareit.comment.Comment;
+import ru.practicum.shareit.comment.CommentMapper;
+import ru.practicum.shareit.comment.CommentRepository;
+import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequest;
@@ -14,8 +22,10 @@ import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,6 +36,8 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserService userService;
     private final ItemRequestService itemRequestService;
+    private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
 
     @Override
     @Transactional
@@ -96,7 +108,15 @@ public class ItemServiceImpl implements ItemService {
                     return new NotFoundException("Item not found with id: " + itemId);
                 });
 
-        return ItemMapper.toItemDto(item);
+        List<CommentDto> comments = commentRepository.findByItemId(itemId)
+                .stream()
+                .map(CommentMapper::toCommentDto)
+                .collect(Collectors.toList());
+
+        ItemDto itemDto = ItemMapper.toItemDto(item);
+        itemDto.setComments(comments);
+
+        return itemDto;
     }
 
     @Override
@@ -104,8 +124,21 @@ public class ItemServiceImpl implements ItemService {
         log.debug("Fetching all items for owner ID: {}", ownerId);
 
         List<Item> items = itemRepository.findByOwnerIdOrderById(ownerId);
+        List<Long> itemIds = items.stream().map(Item::getId).collect(Collectors.toList());
+
+        List<Comment> comments = commentRepository.findByItemIdIn(itemIds);
+        Map<Long, List<CommentDto>> commentsByItem = comments.stream()
+                .collect(Collectors.groupingBy(
+                        comment -> comment.getItem().getId(),
+                        Collectors.mapping(CommentMapper::toCommentDto, Collectors.toList())
+                ));
+
         List<ItemDto> result = items.stream()
-                .map(ItemMapper::toItemDto)
+                .map(item -> {
+                    ItemDto dto = ItemMapper.toItemDto(item);
+                    dto.setComments(commentsByItem.getOrDefault(item.getId(), Collections.emptyList()));
+                    return dto;
+                })
                 .collect(Collectors.toList());
 
         log.debug("Found {} items for owner ID: {}", result.size(), ownerId);
@@ -139,5 +172,39 @@ public class ItemServiceImpl implements ItemService {
                     log.warn("Item entity not found: ID={}", itemId);
                     return new NotFoundException("Item not found with id: " + itemId);
                 });
+    }
+
+    @Override
+    @Transactional
+    public CommentDto addComment(Long itemId, Long userId, CommentDto commentDto) {
+        log.info("Adding comment to item ID: {} by user ID: {}", itemId, userId);
+
+        if (commentDto.getText() == null || commentDto.getText().isBlank()) {
+            log.warn("Comment text is empty");
+            throw new ValidationException("Comment text cannot be empty");
+        }
+
+        User author = userService.getUserEntityById(userId);
+        Item item = getItemEntityById(itemId);
+
+        List<Booking> bookings = bookingRepository.findByItemIdAndBookerIdAndStatusAndEndBefore(
+                itemId,
+                userId,
+                BookingStatus.APPROVED,
+                LocalDateTime.now()
+        );
+
+        if (bookings.isEmpty()) {
+            log.warn("User {} has not booked item {} or booking is not completed", userId, itemId);
+            throw new ValidationException("User has not booked this item or booking is not completed yet");
+        }
+
+        Comment comment = CommentMapper.toComment(commentDto, item, author);
+        Comment savedComment = commentRepository.save(comment);
+
+        log.debug("Added comment: ID={}, Item={}, Author={}",
+                savedComment.getId(), itemId, userId);
+
+        return CommentMapper.toCommentDto(savedComment);
     }
 }

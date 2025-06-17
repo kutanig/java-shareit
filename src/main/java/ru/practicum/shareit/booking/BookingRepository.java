@@ -40,6 +40,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     Page<Booking> findByItemOwnerIdAndStatus(
             Long ownerId, BookingStatus status, Pageable pageable);
 
+    List<Booking> findByItemIdAndBookerIdAndStatusAndEndBefore(
+            Long itemId, Long bookerId, BookingStatus status, LocalDateTime end);
+
     @Query("SELECT b FROM Booking b " +
             "WHERE b.item.id = :itemId " +
             "AND b.status = 'APPROVED' " +
