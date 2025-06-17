@@ -7,23 +7,42 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class ItemDto {
     private Long id;
-
-    @NotBlank(message = "Name cannot be blank")
     private String name;
-
-    @NotBlank(message = "Description cannot be blank")
     private String description;
-
-    @NotNull(message = "Available status is required")
     private Boolean available;
+    private BookingDateDto lastBooking;  // Последнее бронирование
+    private BookingDateDto nextBooking;  // Следующее бронирование
+    private List<CommentDto> comments;  // Комментарии
+}
 
-    private Long ownerId;
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class ItemShortDto {
+    private Long id;
+    private String name;
+    private String description;
+    private Boolean available;
+    private BookingDateDto lastBooking;  // Последнее бронирование
+    private BookingDateDto nextBooking;  // Следующее бронирование
+}
 
-    private Long requestId;
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class BookingDateDto {
+    private Long id;            // ID бронирования
+    private Long bookerId;      // ID пользователя, который забронировал
+    private LocalDateTime start; // Дата начала
+    private LocalDateTime end;   // Дата окончания
 }
