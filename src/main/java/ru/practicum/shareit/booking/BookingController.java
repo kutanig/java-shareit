@@ -61,10 +61,13 @@ public class BookingController {
     @GetMapping
     public List<BookingDto> getAllBookingsForUser(
             @RequestHeader("X-Sharer-User-Id") Long userId,
-            @RequestParam(defaultValue = "ALL") String state
+            @RequestParam(defaultValue = "ALL") String state,
+            @RequestParam(defaultValue = "0") int from,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        log.info("GET /bookings?state={} - Fetching bookings for user {}", state, userId);
-        List<BookingDto> bookings = bookingService.getAllBookingsForUser(userId, state);
+        log.info("GET /bookings?state={}&from={}&size={} - Fetching bookings for user {}",
+                state, from, size, userId);
+        List<BookingDto> bookings = bookingService.getAllBookingsForUser(userId, state, from, size);
         log.debug("Fetched {} bookings for user {} with state {}",
                 bookings.size(), userId, state);
         return bookings;
@@ -73,10 +76,13 @@ public class BookingController {
     @GetMapping("/owner")
     public List<BookingDto> getAllBookingsForOwner(
             @RequestHeader("X-Sharer-User-Id") Long ownerId,
-            @RequestParam(defaultValue = "ALL") String state
+            @RequestParam(defaultValue = "ALL") String state,
+            @RequestParam(defaultValue = "0") int from,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        log.info("GET /bookings/owner?state={} - Fetching bookings for owner {}", state, ownerId);
-        List<BookingDto> bookings = bookingService.getAllBookingsForOwner(ownerId, state);
+        log.info("GET /bookings/owner?state={}&from={}&size={} - Fetching bookings for owner {}",
+                state, from, size, ownerId);
+        List<BookingDto> bookings = bookingService.getAllBookingsForOwner(ownerId, state, from, size);
         log.debug("Fetched {} bookings for owner {} with state {}",
                 bookings.size(), ownerId, state);
         return bookings;
