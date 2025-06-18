@@ -68,7 +68,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public List<ItemRequestDto> getAllRequestsForUser(Long userId) {
         log.debug("Fetching all requests for user ID: {}", userId);
 
-        userService.getUserEntityById(userId); // Проверка существования пользователя
+        userService.getUserEntityById(userId);
 
         List<ItemRequest> requests = requestRepository
                 .findByRequestorIdOrderByCreatedDesc(userId);

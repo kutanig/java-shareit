@@ -16,7 +16,6 @@ import java.util.List;
 @Slf4j
 public class ItemController {
     private final ItemService itemService;
-
     private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
@@ -39,7 +38,7 @@ public class ItemController {
     public ItemDto getItemById(@PathVariable Long itemId,
                                @RequestHeader(USER_ID_HEADER) Long userId) {
         log.info("Getting item ID: {} for user ID: {}", itemId, userId);
-        return itemService.getItemById(itemId);
+        return itemService.getItemById(itemId, userId); // Добавлен userId
     }
 
     @GetMapping
@@ -49,8 +48,9 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItems(@RequestParam String text) {
-        log.info("Searching items by text: '{}'", text);
+    public List<ItemDto> searchItems(@RequestParam String text,
+                                     @RequestHeader(USER_ID_HEADER) Long userId) {
+        log.info("Searching items by text: '{}' for user ID: {}", text, userId);
         return itemService.searchItems(text);
     }
 

@@ -28,6 +28,20 @@ public class ItemDto {
 
     private Long requestId;
 
+    private BookingInfoDto lastBooking;
+
+    private BookingInfoDto nextBooking;
+
     private List<CommentDto> comments;
+
+    @Getter
+    @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class BookingInfoDto {
+        private Long id;
+        private Long bookerId;
+    }
 }
 

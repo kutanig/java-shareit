@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
@@ -40,26 +41,11 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     Page<Booking> findByItemOwnerIdAndStatus(
             Long ownerId, BookingStatus status, Pageable pageable);
 
-    List<Booking> findByItemIdAndBookerIdAndStatusAndEndBefore(
-            Long itemId, Long bookerId, BookingStatus status, LocalDateTime end);
+    Optional<Booking> findFirstByItemIdAndStartBeforeAndStatusOrderByStartDesc(
+            Long itemId, LocalDateTime before, BookingStatus status);
 
-    @Query("SELECT b FROM Booking b " +
-            "WHERE b.item.id = :itemId " +
-            "AND b.status = 'APPROVED' " +
-            "AND b.start < :now " +
-            "ORDER BY b.start DESC")
-    List<Booking> findLastBookingForItem(
-            @Param("itemId") Long itemId,
-            @Param("now") LocalDateTime now);
-
-    @Query("SELECT b FROM Booking b " +
-            "WHERE b.item.id = :itemId " +
-            "AND b.status = 'APPROVED' " +
-            "AND b.start > :now " +
-            "ORDER BY b.start ASC")
-    List<Booking> findNextBookingForItem(
-            @Param("itemId") Long itemId,
-            @Param("now") LocalDateTime now);
+    Optional<Booking> findFirstByItemIdAndStartAfterAndStatusOrderByStartAsc(
+            Long itemId, LocalDateTime after, BookingStatus status);
 
     @Query("SELECT b FROM Booking b " +
             "WHERE b.item.id = :itemId " +
