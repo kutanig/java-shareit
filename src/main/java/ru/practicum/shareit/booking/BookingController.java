@@ -1,9 +1,12 @@
 package ru.practicum.shareit.booking;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
@@ -14,9 +17,9 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/bookings")
+@Validated
 public class BookingController {
     private final BookingService bookingService;
-    private final BookingMapper bookingMapper;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -56,8 +59,8 @@ public class BookingController {
     public List<BookingResponseDto> getAllBookingsForUser(
             @RequestHeader("X-Sharer-User-Id") Long userId,
             @RequestParam(defaultValue = "ALL") String state,
-            @RequestParam(defaultValue = "0") int from,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "0") @PositiveOrZero int from,
+            @RequestParam(defaultValue = "10") @Positive int size) {
         log.info("GET /bookings?state={} - Fetching bookings for user {}", state, userId);
         List<BookingResponseDto> response = bookingService.getAllBookingsForUser(userId, state, from, size);
         log.debug("Fetched {} bookings for user {}", response.size(), userId);
@@ -68,8 +71,8 @@ public class BookingController {
     public List<BookingResponseDto> getAllBookingsForOwner(
             @RequestHeader("X-Sharer-User-Id") Long ownerId,
             @RequestParam(defaultValue = "ALL") String state,
-            @RequestParam(defaultValue = "0") int from,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "0") @PositiveOrZero int from,
+            @RequestParam(defaultValue = "10") @Positive int size) {
         log.info("GET /bookings/owner?state={} - Fetching bookings for owner {}", state, ownerId);
         List<BookingResponseDto> response = bookingService.getAllBookingsForOwner(ownerId, state, from, size);
         log.debug("Fetched {} bookings for owner {}", response.size(), ownerId);

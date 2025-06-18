@@ -1,5 +1,7 @@
 package ru.practicum.shareit.booking;
 
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -84,9 +86,13 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingResponseDto> getAllBookingsForUser(Long userId, String state, int from, int size) {
+    public List<BookingResponseDto> getAllBookingsForUser(
+            Long userId,
+            String state,
+            @PositiveOrZero int from,
+            @Positive int size) {
+
         log.debug("Fetching all bookings for user ID: {} with state: {}", userId, state);
-        validatePagination(from, size);
         userService.getUserEntityById(userId);
 
         Page<Booking> bookingPage = getBookingsPageForUser(userId, state, from, size);
@@ -94,9 +100,13 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingResponseDto> getAllBookingsForOwner(Long ownerId, String state, int from, int size) {
+    public List<BookingResponseDto> getAllBookingsForOwner(
+            Long ownerId,
+            String state,
+            @PositiveOrZero int from,
+            @Positive int size) {
+
         log.debug("Fetching all bookings for owner ID: {} with state: {}", ownerId, state);
-        validatePagination(from, size);
         userService.getUserEntityById(ownerId);
 
         Page<Booking> bookingPage = getBookingsPageForOwner(ownerId, state, from, size);
@@ -157,12 +167,6 @@ public class BookingServiceImpl implements BookingService {
     private void validateBookingAccess(Booking booking, Long userId) {
         if (!booking.getBooker().getId().equals(userId) && !booking.getItem().getOwner().getId().equals(userId)) {
             throw new NotFoundException("User not authorized to view this booking");
-        }
-    }
-
-    private void validatePagination(int from, int size) {
-        if (from < 0 || size <= 0) {
-            throw new ValidationException("Invalid pagination parameters");
         }
     }
 

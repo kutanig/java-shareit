@@ -11,7 +11,6 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -49,13 +48,12 @@ public class UserServiceImpl implements UserService {
                     return new NotFoundException("User not found with id: " + userId);
                 });
 
-        if (userDto.getEmail() != null &&
-                !userDto.getEmail().equals(existingUser.getEmail())) {
-            Optional<User> userWithSameEmail = userRepository.findByEmail(userDto.getEmail());
-            if (userWithSameEmail.isPresent()) {
-                log.warn("Duplicate email during update: {}", userDto.getEmail());
-                throw new DuplicateEmailException("Email already exists: " + userDto.getEmail());
-            }
+        if (userDto.getEmail() != null && !userDto.getEmail().equals(existingUser.getEmail())) {
+            userRepository.findByEmail(userDto.getEmail())
+                    .ifPresent(user -> {
+                        log.warn("Duplicate email during update: {}", userDto.getEmail());
+                        throw new DuplicateEmailException("Email already exists: " + userDto.getEmail());
+                    });
         }
 
         String originalName = existingUser.getName();
