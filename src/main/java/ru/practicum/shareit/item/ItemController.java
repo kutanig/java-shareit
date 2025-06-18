@@ -1,7 +1,9 @@
 package ru.practicum.shareit.item;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -18,8 +20,9 @@ public class ItemController {
     private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
-    public ItemDto addItem(@RequestHeader(USER_ID_HEADER) Long userId,
-                           @RequestBody ItemDto itemDto) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public ItemDto addItem(@Valid @RequestHeader(USER_ID_HEADER) Long userId,
+                           @Valid @RequestBody ItemDto itemDto) {
         log.info("Adding item for user ID: {}", userId);
         return itemService.addItem(itemDto, userId);
     }
