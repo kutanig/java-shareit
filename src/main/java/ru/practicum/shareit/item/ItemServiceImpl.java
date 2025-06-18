@@ -187,12 +187,7 @@ public class ItemServiceImpl implements ItemService {
         User author = userService.getUserEntityById(userId);
         Item item = getItemEntityById(itemId);
 
-        List<Booking> bookings = bookingRepository.findByItemIdAndBookerIdAndStatusAndEndBefore(
-                itemId,
-                userId,
-                BookingStatus.APPROVED,
-                LocalDateTime.now()
-        );
+        List<Booking> bookings = bookingRepository.findCompletedBookingsForComment(itemId, userId);
 
         if (bookings.isEmpty()) {
             log.warn("User {} has not booked item {} or booking is not completed", userId, itemId);
