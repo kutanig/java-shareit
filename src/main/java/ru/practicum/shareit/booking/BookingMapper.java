@@ -1,34 +1,34 @@
 package ru.practicum.shareit.booking;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
+import ru.practicum.shareit.booking.dto.BookingResponseDto;
 
-import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
 
+@Component
+@RequiredArgsConstructor
 public class BookingMapper {
-    public static BookingDto toBookingDto(Booking booking) {
-        return new BookingDto(
-                booking.getId(),
-                booking.getStart(),
-                booking.getEnd(),
-                booking.getItem().getId(),
-                booking.getBooker().getId(),
-                booking.getStatus()
-        );
+    public BookingResponseDto toBookingResponseDto(Booking booking) {
+        return BookingResponseDto.builder()
+                .id(booking.getId())
+                .start(booking.getStart())
+                .end(booking.getEnd())
+                .status(booking.getStatus())
+                .booker(new BookingResponseDto.BookerDto(
+                        booking.getBooker().getId(),
+                        booking.getBooker().getName()))
+                .item(new BookingResponseDto.ItemDto(
+                        booking.getItem().getId(),
+                        booking.getItem().getName()))
+                .build();
     }
 
-    public static Booking toBooking(BookingDto bookingDto, Item item, User booker) {
-        Booking booking = new Booking();
-        booking.setId(bookingDto.getId());
-        booking.setStart(bookingDto.getStart());
-        booking.setEnd(bookingDto.getEnd());
-        booking.setItem(item);
-        booking.setBooker(booker);
-        booking.setStatus(
-                bookingDto.getStatus() != null
-                        ? bookingDto.getStatus()
-                        : BookingStatus.WAITING
-        );
-        return booking;
+    public Booking toBooking(BookingRequestDto bookingRequestDto) {
+        return Booking.builder()
+                .start(bookingRequestDto.getStart())
+                .end(bookingRequestDto.getEnd())
+                .status(BookingStatus.WAITING)
+                .build();
     }
 }

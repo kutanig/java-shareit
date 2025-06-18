@@ -3,11 +3,7 @@ package ru.practicum.shareit.booking.dto;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import ru.practicum.shareit.booking.BookingStatus;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -15,9 +11,8 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookingDto {
-    private Long id;
-
+@Builder
+public class BookingRequestDto {
     @NotNull(message = "Start time is required")
     @FutureOrPresent(message = "Start time must be in present or future")
     private LocalDateTime start;
@@ -28,7 +23,4 @@ public class BookingDto {
 
     @NotNull(message = "Item ID is required")
     private Long itemId;
-
-    private Long bookerId;
-    private BookingStatus status;
 }
