@@ -1,16 +1,15 @@
 package ru.practicum.shareit.request;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "item_requests")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class ItemRequest {
