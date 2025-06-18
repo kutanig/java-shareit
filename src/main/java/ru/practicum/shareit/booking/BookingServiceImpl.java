@@ -133,7 +133,6 @@ public class BookingServiceImpl implements BookingService {
         };
     }
 
-    // Остальные методы валидации остаются без изменений
     private void validateBooking(BookingRequestDto bookingDto, Long bookerId, Item item) {
         if (bookingDto.getEnd().isBefore(bookingDto.getStart())) {
             throw new ValidationException("End time must be after start time");
