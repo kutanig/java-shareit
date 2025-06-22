@@ -43,15 +43,21 @@ public class ItemServiceImpl implements ItemService {
         ItemRequest request = null;
 
         if (itemDto.getRequestId() != null) {
-            log.debug("Item has request ID: {}", itemDto.getRequestId());
+            log.debug("Processing request ID: {}", itemDto.getRequestId());
             request = itemRequestRepository.findById(itemDto.getRequestId())
-                    .orElseThrow(() -> new NotFoundException("Request not found"));
+                    .orElseThrow(() -> new NotFoundException(
+                            String.format("Request with ID %d not found", itemDto.getRequestId())
+                    ));
+
+            if (request.getRequestor().getId().equals(ownerId)) {
+                throw new ValidationException("You cannot create an item in response to your own request");
+            }
         }
 
         Item item = itemMapper.toItem(itemDto, owner, request);
         Item savedItem = itemRepository.save(item);
 
-        log.debug("Added item: ID={}, Name={}, Owner={}, Request={}",
+        log.info("Successfully added item: ID={}, Name='{}', Owner={}, Request={}",
                 savedItem.getId(), savedItem.getName(), ownerId, itemDto.getRequestId());
 
         return itemMapper.toItemDto(savedItem, ownerId);
