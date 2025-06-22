@@ -2,33 +2,37 @@ package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
+
+import static io.micrometer.common.util.StringUtils.truncate;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ItemRequestServiceImpl implements ItemRequestService {
-    private final Map<Long, ItemRequest> requests = new HashMap<>();
-    private Long idCounter = 1L;
+    private final ItemRequestRepository requestRepository;
     private final UserService userService;
 
     @Override
+    @Transactional
     public ItemRequestDto createRequest(ItemRequestDto requestDto, Long userId) {
         log.info("Creating request for user ID: {}", userId);
 
-        User requestor = UserMapper.toUser(userService.getUserById(userId));
+        User requestor = userService.getUserEntityById(userId);
 
         if (requestDto.getDescription() == null || requestDto.getDescription().isBlank()) {
             log.warn("Empty description in request from user {}", userId);
@@ -36,28 +40,26 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         }
 
         ItemRequest request = ItemRequestMapper.toItemRequest(requestDto, requestor);
-        request.setId(idCounter);
         request.setCreated(LocalDateTime.now());
-        requests.put(request.getId(), request);
-        idCounter++;
+        ItemRequest savedRequest = requestRepository.save(request);
 
         log.debug("Created request: ID={}, User={}, Description='{}', Created={}",
-                request.getId(), userId,
-                truncate(request.getDescription(), 30),
-                request.getCreated());
+                savedRequest.getId(), userId,
+                truncate(savedRequest.getDescription(), 30),
+                savedRequest.getCreated());
 
-        return ItemRequestMapper.toItemRequestDto(request);
+        return ItemRequestMapper.toItemRequestDto(savedRequest);
     }
 
     @Override
     public ItemRequestDto getRequestById(Long requestId) {
         log.debug("Fetching request by ID: {}", requestId);
 
-        ItemRequest request = requests.get(requestId);
-        if (request == null) {
-            log.warn("Request not found: ID={}", requestId);
-            throw new NotFoundException("Request not found with id: " + requestId);
-        }
+        ItemRequest request = requestRepository.findById(requestId)
+                .orElseThrow(() -> {
+                    log.warn("Request not found: ID={}", requestId);
+                    return new NotFoundException("Request not found with id: " + requestId);
+                });
 
         return ItemRequestMapper.toItemRequestDto(request);
     }
@@ -66,13 +68,14 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public List<ItemRequestDto> getAllRequestsForUser(Long userId) {
         log.debug("Fetching all requests for user ID: {}", userId);
 
-        userService.getUserById(userId); // Проверка существования пользователя
+        userService.getUserEntityById(userId);
 
-        List<ItemRequestDto> result = requests.values().stream()
-                .filter(r -> r.getRequestor().getId().equals(userId))
-                .sorted(Comparator.comparing(ItemRequest::getCreated).reversed())
+        List<ItemRequest> requests = requestRepository
+                .findByRequestorIdOrderByCreatedDesc(userId);
+
+        List<ItemRequestDto> result = requests.stream()
                 .map(ItemRequestMapper::toItemRequestDto)
-                .toList();
+                .collect(Collectors.toList());
 
         log.debug("Found {} requests for user ID: {}", result.size(), userId);
         return result;
@@ -92,27 +95,21 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             throw new ValidationException("'size' must be positive");
         }
 
-        List<ItemRequest> allRequests = requests.values().stream()
-                .filter(r -> !r.getRequestor().getId().equals(userId))
-                .sorted(Comparator.comparing(ItemRequest::getCreated).reversed())
-                .toList();
+        PageRequest page = PageRequest.of(
+                from / size,
+                size,
+                Sort.by(Sort.Direction.DESC, "created"));
 
-        int total = allRequests.size();
-        int start = Math.min(from, total);
-        int end = Math.min(start + size, total);
+        Page<ItemRequest> requestPage = requestRepository.findByRequestorIdNot(userId, page);
+        List<ItemRequest> requests = requestPage.getContent();
 
-        List<ItemRequestDto> result = allRequests.subList(start, end).stream()
+        List<ItemRequestDto> result = requests.stream()
                 .map(ItemRequestMapper::toItemRequestDto)
-                .toList();
+                .collect(Collectors.toList());
 
-        log.debug("Fetched {} requests (from={} to {}) of total {} excluding user {}",
-                result.size(), start, end, total, userId);
+        log.debug("Fetched {} requests for page {} (size {}) excluding user {}",
+                result.size(), from / size, size, userId);
 
         return result;
-    }
-
-    private String truncate(String text, int length) {
-        if (text == null) return "null";
-        return text.length() <= length ? text : text.substring(0, length) + "...";
     }
 }
