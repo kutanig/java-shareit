@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserUpdateDto;
 
 @RestController
 @RequestMapping("/users")
@@ -25,8 +26,8 @@ public class UserControllerGateway {
     @PatchMapping("/{userId}")
     public ResponseEntity<Object> updateUser(
             @PathVariable @Positive Long userId,
-            @Valid @RequestBody UserDto userDto) {
-        return userClient.updateUser(userId, userDto);
+            @RequestBody @Valid UserUpdateDto updateDto) {
+        return userClient.updateUser(userId, updateDto);
     }
 
     @GetMapping("/{userId}")
