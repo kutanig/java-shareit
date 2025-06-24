@@ -1,6 +1,5 @@
 package ru.practicum.shareit.exception;
 
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,21 +10,15 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
-public class GlobalExceptionHandler {
-    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+public class GatewayExceptionHandler {
+    private static final Logger log = LoggerFactory.getLogger(GatewayExceptionHandler.class);
 
-    @ExceptionHandler(DuplicateEmailException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleDuplicateEmail(DuplicateEmailException ex) {
-        log.warn("Email conflict: {}", ex.getMessage());
-        return new ErrorResponse("Conflict", ex.getMessage());
-    }
-
+    // 1. Обработка ошибок валидации @Valid
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ValidationErrorResponse handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
@@ -37,11 +30,11 @@ public class GlobalExceptionHandler {
         return new ValidationErrorResponse("Validation Failed", fieldErrors);
     }
 
+    // 2. Ошибки валидации параметров запроса
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ValidationErrorResponse handleConstraintViolation(ConstraintViolationException ex) {
-        Set<ConstraintViolation<?>> violations = ex.getConstraintViolations();
-        List<FieldError> fieldErrors = violations.stream()
+        List<FieldError> fieldErrors = ex.getConstraintViolations().stream()
                 .map(v -> new FieldError(
                         v.getPropertyPath().toString(),
                         v.getMessage()))
@@ -51,19 +44,27 @@ public class GlobalExceptionHandler {
         return new ValidationErrorResponse("Constraint Violation", fieldErrors);
     }
 
-    @ExceptionHandler({
-            ValidationException.class,
-            UnavailableItemException.class,
-            SelfBookingException.class,
-            BookingTimeException.class,
-            InvalidPaginationException.class
-    })
+    // 3. Неверный тип параметра
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleBadRequest(RuntimeException ex) {
-        log.warn("Bad request: {}", ex.getMessage());
-        return new ErrorResponse("Bad Request", ex.getMessage());
+    public ErrorResponse handleArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String message = String.format("Parameter '%s' should be of type %s",
+                ex.getName(),
+                ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "unknown");
+
+        log.warn("Argument type mismatch: {}", message);
+        return new ErrorResponse("Invalid Parameter", message);
     }
 
+    // 4. Общие ошибки формата запроса
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleIllegalArgument(IllegalArgumentException ex) {
+        log.warn("Invalid request format: {}", ex.getMessage());
+        return new ErrorResponse("Invalid Request", ex.getMessage());
+    }
+
+    // 5. Ошибки доступа
     @ExceptionHandler(ForbiddenException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorResponse handleForbidden(ForbiddenException ex) {
@@ -71,38 +72,7 @@ public class GlobalExceptionHandler {
         return new ErrorResponse("Forbidden", ex.getMessage());
     }
 
-    @ExceptionHandler(NotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFound(NotFoundException ex) {
-        log.warn("Not found error: {}", ex.getMessage());
-        return new ErrorResponse("Not Found", ex.getMessage());
-    }
-
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        String message = "Parameter '" + ex.getName() + "' should be " + getExpectedType(ex);
-        log.warn("Argument type mismatch: {}", message);
-        return new ErrorResponse("Invalid Parameter", message);
-    }
-
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleInternalError(Exception ex) {
-        log.error("Internal server error", ex);
-        return new ErrorResponse("Internal Server Error", "An unexpected error occurred");
-    }
-
-    private String getExpectedType(MethodArgumentTypeMismatchException ex) {
-        if (ex.getRequiredType() == null) {
-            return "unknown type";
-        }
-        return ex.getRequiredType().getSimpleName().toLowerCase();
-    }
-
-    public record ErrorResponse(String error, String message) {
-    }
-
+    // Record для ошибок валидации
     public record ValidationErrorResponse(
             String error,
             String message,
@@ -113,6 +83,9 @@ public class GlobalExceptionHandler {
         }
     }
 
-    public record FieldError(String field, String message) {
-    }
+    // Record для полевых ошибок
+    public record FieldError(String field, String message) {}
+
+    // Record для обычных ошибок
+    public record ErrorResponse(String error, String message) {}
 }
