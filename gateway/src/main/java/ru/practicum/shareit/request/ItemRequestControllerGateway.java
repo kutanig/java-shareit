@@ -22,14 +22,14 @@ public class ItemRequestControllerGateway {
     public ResponseEntity<Object> createRequest(
             @RequestHeader("X-Sharer-User-Id") @Positive Long userId,
             @RequestBody @Valid ItemRequestDto requestDto) {
-        log.info("Gateway: Создание запроса пользователем ID={}", userId);
+        log.info("Gateway: Creating request by user ID: {}", userId);
         return requestClient.createRequest(userId, requestDto);
     }
 
     @GetMapping
     public ResponseEntity<Object> getAllRequestsForUser(
             @RequestHeader("X-Sharer-User-Id") @Positive Long userId) {
-        log.info("Gateway: Получение всех запросов пользователя ID={}", userId);
+        log.info("Gateway: Getting all requests for user ID: {}", userId);
         return requestClient.getAllRequestsForUser(userId);
     }
 
@@ -38,7 +38,7 @@ public class ItemRequestControllerGateway {
             @RequestHeader("X-Sharer-User-Id") @Positive Long userId,
             @RequestParam(defaultValue = "0") @PositiveOrZero int from,
             @RequestParam(defaultValue = "10") @Positive int size) {
-        log.info("Gateway: Получение всех запросов (from={}, size={}) для пользователя ID={}", from, size, userId);
+        log.info("Gateway: Getting all requests (from={}, size={}) for user ID: {}", from, size, userId);
         return requestClient.getAllRequests(userId, from, size);
     }
 
@@ -46,7 +46,7 @@ public class ItemRequestControllerGateway {
     public ResponseEntity<Object> getRequestById(
             @RequestHeader("X-Sharer-User-Id") @Positive Long userId,
             @PathVariable @Positive Long requestId) {
-        log.info("Gateway: Получение запроса ID={} пользователем ID={}", requestId, userId);
+        log.info("Gateway: Getting request ID: {} by user ID: {}", requestId, userId);
         return requestClient.getRequestById(userId, requestId);
     }
 }

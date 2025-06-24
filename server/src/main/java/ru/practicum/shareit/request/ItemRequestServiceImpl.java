@@ -9,7 +9,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.ItemMapper;
+import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.dto.ItemRequestResponseDto;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
 
@@ -25,7 +29,9 @@ import static io.micrometer.common.util.StringUtils.truncate;
 @Transactional(readOnly = true)
 public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestRepository requestRepository;
+    private final ItemRepository itemRepository;
     private final UserService userService;
+    private final ItemMapper itemMapper;
 
     @Override
     @Transactional
@@ -49,19 +55,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                 savedRequest.getCreated());
 
         return ItemRequestMapper.toItemRequestDto(savedRequest);
-    }
-
-    @Override
-    public ItemRequestDto getRequestById(Long requestId) {
-        log.debug("Fetching request by ID: {}", requestId);
-
-        ItemRequest request = requestRepository.findById(requestId)
-                .orElseThrow(() -> {
-                    log.warn("Request not found: ID={}", requestId);
-                    return new NotFoundException("Request not found with id: " + requestId);
-                });
-
-        return ItemRequestMapper.toItemRequestDto(request);
     }
 
     @Override
@@ -111,5 +104,39 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                 result.size(), from / size, size, userId);
 
         return result;
+    }
+
+    @Override
+    public ItemRequestResponseDto getRequestById(Long requestId) {
+        log.debug("Fetching request by ID: {}", requestId);
+
+        ItemRequest request = requestRepository.findById(requestId)
+                .orElseThrow(() -> {
+                    log.warn("Request not found: ID={}", requestId);
+                    return new NotFoundException("Request not found");
+                });
+
+        log.debug("Found request: ID={}, User={}, Description='{}', Created={}",
+                request.getId(),
+                request.getRequestor().getId(),
+                truncate(request.getDescription(), 30),
+                request.getCreated());
+
+        List<ItemDto> items = itemRepository.findByRequestId(requestId).stream()
+                .map(item -> {
+                    log.trace("Mapping item for request: ItemID={}, Name='{}'",
+                            item.getId(), truncate(item.getName(), 20));
+                    return itemMapper.toSimpleItemDto(item);
+                })
+                .collect(Collectors.toList());
+
+        log.debug("Found {} items for request ID: {}", items.size(), requestId);
+
+        ItemRequestResponseDto response = ItemRequestMapper.toItemRequestResponseDto(request, items);
+
+        log.debug("Returning request response: ID={}, ItemsCount={}",
+                response.getId(), response.getItems().size());
+
+        return response;
     }
 }

@@ -18,7 +18,7 @@ public class UserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto createUser(@RequestBody UserDto userDto) {
-        log.debug("Server: Создание пользователя");
+        log.debug("Server: Creating new user");
         return userService.createUser(userDto);
     }
 
@@ -26,26 +26,26 @@ public class UserController {
     public UserDto updateUser(
             @PathVariable Long userId,
             @RequestBody UserDto userDto) {
-        log.debug("Server: Обновление пользователя ID={}", userId);
+        log.debug("Server: Updating user ID: {}", userId);
         return userService.updateUser(userId, userDto);
     }
 
     @GetMapping("/{userId}")
     public UserDto getUserById(@PathVariable Long userId) {
-        log.debug("Server: Получение пользователя ID={}", userId);
+        log.debug("Server: Getting user ID: {}", userId);
         return userService.getUserById(userId);
     }
 
     @GetMapping
     public List<UserDto> getAllUsers() {
-        log.debug("Server: Получение всех пользователей");
+        log.debug("Server: Getting all users");
         return userService.getAllUsers();
     }
 
     @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable Long userId) {
-        log.debug("Server: Удаление пользователя ID={}", userId);
+        log.debug("Server: Deleting user ID: {}", userId);
         userService.deleteUser(userId);
     }
 }

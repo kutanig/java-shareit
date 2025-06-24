@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -84,8 +83,10 @@ public class GatewayExceptionHandler {
     }
 
     // Record для полевых ошибок
-    public record FieldError(String field, String message) {}
+    public record FieldError(String field, String message) {
+    }
 
     // Record для обычных ошибок
-    public record ErrorResponse(String error, String message) {}
+    public record ErrorResponse(String error, String message) {
+    }
 }

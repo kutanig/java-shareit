@@ -102,4 +102,19 @@ public class ItemMapper {
                         .build())
                 .collect(Collectors.toList());
     }
+
+    public ItemDto toSimpleItemDto(Item item) {
+        if (item == null) {
+            return null;
+        }
+
+        return ItemDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.getAvailable())
+                .ownerId(item.getOwner().getId())
+                .requestId(item.getRequest() != null ? item.getRequest().getId() : null)
+                .build();
+    }
 }

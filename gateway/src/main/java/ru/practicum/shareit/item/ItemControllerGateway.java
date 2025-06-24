@@ -25,7 +25,7 @@ public class ItemControllerGateway {
     public ResponseEntity<Object> addItem(
             @RequestHeader(USER_ID_HEADER) @Positive Long userId,
             @RequestBody @Valid ItemRequestDto itemRequestDto) {
-        log.info("Gateway: Добавление вещи {} пользователем ID={}", itemRequestDto.getName(), userId);
+        log.info("Gateway: Adding item {} for user ID: {}", itemRequestDto.getName(), userId);
         return itemClient.addItem(userId, itemRequestDto);
     }
 
@@ -34,7 +34,7 @@ public class ItemControllerGateway {
             @PathVariable @Positive Long itemId,
             @RequestHeader(USER_ID_HEADER) @Positive Long userId,
             @RequestBody @Valid ItemRequestDto itemRequestDto) {
-        log.info("Gateway: Обновление вещи ID={} пользователем ID={}", itemId, userId);
+        log.info("Gateway: Updating item ID: {} for user ID: {}", itemId, userId);
         return itemClient.updateItem(itemId, userId, itemRequestDto);
     }
 
@@ -42,7 +42,7 @@ public class ItemControllerGateway {
     public ResponseEntity<Object> getItemById(
             @PathVariable @Positive Long itemId,
             @RequestHeader(USER_ID_HEADER) @Positive Long userId) {
-        log.info("Gateway: Получение вещи ID={} пользователем ID={}", itemId, userId);
+        log.info("Gateway: Getting item ID: {} for user ID: {}", itemId, userId);
         return itemClient.getItem(itemId, userId);
     }
 
@@ -51,7 +51,7 @@ public class ItemControllerGateway {
             @RequestHeader(USER_ID_HEADER) @Positive Long userId,
             @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
             @RequestParam(defaultValue = "10") @Positive Integer size) {
-        log.info("Gateway: Получение всех вещей владельца ID={}, from={}, size={}", userId, from, size);
+        log.info("Gateway: Getting all items for owner ID: {}, from: {}, size: {}", userId, from, size);
         return itemClient.getAllItems(userId, from, size);
     }
 
@@ -61,7 +61,7 @@ public class ItemControllerGateway {
             @RequestHeader(USER_ID_HEADER) @Positive Long userId,
             @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
             @RequestParam(defaultValue = "10") @Positive Integer size) {
-        log.info("Gateway: Поиск вещей по тексту '{}' для пользователя ID={}", text, userId);
+        log.info("Gateway: Searching items by text: '{}' for user ID: {}", text, userId);
         return itemClient.searchItems(text, userId, from, size);
     }
 
@@ -70,7 +70,7 @@ public class ItemControllerGateway {
             @PathVariable @Positive Long itemId,
             @RequestHeader(USER_ID_HEADER) @Positive Long userId,
             @RequestBody @Valid CommentRequestDto commentRequestDto) {
-        log.info("Gateway: Добавление комментария к вещи ID={} пользователем ID={}", itemId, userId);
+        log.info("Gateway: Adding comment to item ID: {} by user ID: {}", itemId, userId);
         return itemClient.addComment(itemId, userId, commentRequestDto);
     }
 }
