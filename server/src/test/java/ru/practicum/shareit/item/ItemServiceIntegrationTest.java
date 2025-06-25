@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import({ItemServiceImpl.class, ItemMapper.class})
-class ItemServiceImplIntegrationTest {
+class ItemServiceIntegrationTest {
 
     @Autowired
     private ItemServiceImpl itemService;
