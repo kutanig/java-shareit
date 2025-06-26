@@ -117,7 +117,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public CommentDto addComment(Long itemId, Long userId, CommentDto commentDto) {
-        validateCommentText(commentDto);
+        //validateCommentText(commentDto);
 
         User author = userService.getUserEntityById(userId);
         Item item = getItemEntityById(itemId);
@@ -144,11 +144,11 @@ public class ItemServiceImpl implements ItemService {
         if (itemDto.getAvailable() != null) item.setAvailable(itemDto.getAvailable());
     }
 
-    private void validateCommentText(CommentDto commentDto) {
+    /*private void validateCommentText(CommentDto commentDto) {
         if (commentDto.getText() == null || commentDto.getText().isBlank()) {
             throw new ValidationException("Comment text cannot be empty");
         }
-    }
+    }*/
 
     private void validateBookingForComment(Long itemId, Long userId) {
         if (bookingRepository.findCompletedBookingsForComment(itemId, userId).isEmpty()) {
