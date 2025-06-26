@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking.dto;
 
 import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,7 +16,7 @@ public class BookItemRequestDto {
     private long itemId;
 
     @NotNull(message = "Start time is required")
-    @FutureOrPresent(message = "Start time must be in present or future")
+    //@FutureOrPresent(message = "Start time must be in present or future")
     private LocalDateTime start;
 
     @NotNull(message = "End time is required")
