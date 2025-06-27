@@ -21,7 +21,7 @@ public class BookingControllerGateway {
 
     @PostMapping
     public ResponseEntity<Object> createBooking(
-            @RequestHeader("X-Sharer-User-Id") long userId,
+            @RequestHeader("X-Sharer-User-Id") Long userId,
             @Valid @RequestBody BookItemRequestDto requestDto) {
         log.info("POST /bookings - User {} creating booking for item {}", userId, requestDto.getItemId());
         return bookingClient.createBooking(userId, requestDto);
@@ -30,8 +30,8 @@ public class BookingControllerGateway {
     @PatchMapping("/{bookingId}")
     public ResponseEntity<Object> approveBooking(
             @PathVariable Long bookingId,
-            @RequestParam boolean approved,
-            @RequestHeader("X-Sharer-User-Id") long userId) {
+            @RequestParam Boolean approved,
+            @RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("PATCH /bookings/{} - User {} {}", bookingId, userId,
                 approved ? "approving" : "rejecting");
         return bookingClient.approveBooking(bookingId, userId, approved);
@@ -39,7 +39,7 @@ public class BookingControllerGateway {
 
     @GetMapping("/{bookingId}")
     public ResponseEntity<Object> getBooking(
-            @RequestHeader("X-Sharer-User-Id") long userId,
+            @RequestHeader("X-Sharer-User-Id") Long userId,
             @PathVariable Long bookingId) {
         log.info("GET /bookings/{} - Fetching booking by user {}", bookingId, userId);
         return bookingClient.getBooking(bookingId, userId);
@@ -47,7 +47,7 @@ public class BookingControllerGateway {
 
     @GetMapping
     public ResponseEntity<Object> getAllBookingsForUser(
-            @RequestHeader("X-Sharer-User-Id") long userId,
+            @RequestHeader("X-Sharer-User-Id") Long userId,
             @RequestParam(defaultValue = "ALL") String state,
             @PositiveOrZero @RequestParam(defaultValue = "0") int from,
             @Positive @RequestParam(defaultValue = "10") int size) {
@@ -59,7 +59,7 @@ public class BookingControllerGateway {
 
     @GetMapping("/owner")
     public ResponseEntity<Object> getAllBookingsForOwner(
-            @RequestHeader("X-Sharer-User-Id") long ownerId,
+            @RequestHeader("X-Sharer-User-Id") Long ownerId,
             @RequestParam(defaultValue = "ALL") String state,
             @PositiveOrZero @RequestParam(defaultValue = "0") int from,
             @Positive @RequestParam(defaultValue = "10") int size) {

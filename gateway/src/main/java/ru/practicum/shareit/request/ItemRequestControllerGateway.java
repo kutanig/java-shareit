@@ -36,8 +36,8 @@ public class ItemRequestControllerGateway {
     @GetMapping("/all")
     public ResponseEntity<Object> getAllRequests(
             @RequestHeader("X-Sharer-User-Id") @Positive Long userId,
-            @RequestParam(defaultValue = "0") @PositiveOrZero int from,
-            @RequestParam(defaultValue = "10") @Positive int size) {
+            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+            @RequestParam(defaultValue = "10") @Positive Integer size) {
         log.info("Gateway: Getting all requests (from={}, size={}) for user ID: {}", from, size, userId);
         return requestClient.getAllRequests(userId, from, size);
     }
